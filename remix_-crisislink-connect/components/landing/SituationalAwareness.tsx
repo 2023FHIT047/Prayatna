@@ -65,20 +65,33 @@ const SituationalAwareness: React.FC = () => {
 
   useEffect(() => {
     const fetchTacticalData = async () => {
-      // INCLUDE 'reported' status so new signals show up immediately
-      const { data: incData } = await (supabase.from('incidents').select('*') as any)
-        .in('status', ['active', 'reported'])
-        .order('created_at', { ascending: false })
-        .limit(8);
-      
-      const { data: centData } = await (supabase.from('resource_centers').select('*') as any);
-      
-      const filteredInc = (incData || []).filter((i: any) => typeof i.latitude === 'number' && typeof i.longitude === 'number');
-      const filteredCent = (centData || []).filter((c: any) => typeof c.latitude === 'number' && typeof c.longitude === 'number');
-      
-      setIncidents(filteredInc);
-      setCenters(filteredCent);
-      setIsLoading(false);
+      try {
+        // INCLUDE 'reported' status so new signals show up immediately
+        const { data: incData, error: incError } = await (supabase.from('incidents').select('*') as any)
+          .in('status', ['active', 'reported'])
+          .order('created_at', { ascending: false })
+          .limit(8);
+        
+        if (incError) {
+          console.error('Error fetching incidents:', incError);
+        }
+
+        const { data: centData, error: centError } = await (supabase.from('resource_centers').select('*') as any);
+        
+        if (centError) {
+          console.error('Error fetching centers:', centError);
+        }
+
+        const filteredInc = (incData || []).filter((i: any) => typeof i.latitude === 'number' && typeof i.longitude === 'number');
+        const filteredCent = (centData || []).filter((c: any) => typeof c.latitude === 'number' && typeof c.longitude === 'number');
+        
+        setIncidents(filteredInc);
+        setCenters(filteredCent);
+      } catch (err) {
+        console.error('Unexpected error in situational awareness fetch:', err);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchTacticalData();
 

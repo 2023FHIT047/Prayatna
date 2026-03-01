@@ -8,8 +8,10 @@ export const INDIA_BOUNDS: [[number, number], [number, number]] = [
 
 export const INDIA_CENTER: [number, number] = [20.5937, 78.9629];
 
-let supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL;
-const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY;
+const rawUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+
+let supabaseUrl = rawUrl;
 
 // Normalize URL: If it's just a project ID, convert to full Supabase URL
 if (supabaseUrl && !supabaseUrl.startsWith('http')) {
@@ -25,8 +27,14 @@ const isValidUrl = (url: string) => {
   }
 };
 
-export const supabase = (supabaseUrl && supabaseAnonKey && isValidUrl(supabaseUrl))
-  ? createClient(supabaseUrl, supabaseAnonKey)
+const isConfigured = Boolean(supabaseUrl && supabaseAnonKey && isValidUrl(supabaseUrl));
+
+if (!isConfigured && import.meta.env.PROD) {
+  console.error('Supabase is NOT configured. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel settings.');
+}
+
+export const supabase = isConfigured
+  ? createClient(supabaseUrl!, supabaseAnonKey!)
   : new Proxy({} as any, {
       get(_, prop) {
         if (prop === 'auth') {
