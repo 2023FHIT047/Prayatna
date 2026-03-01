@@ -1,0 +1,9 @@
+{
+  "name": "Remix: CrisisLink Connect",
+  "description": "A comprehensive crisis management and emergency response platform connecting communities, volunteers, and resource managers in real-time.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
