@@ -120,7 +120,7 @@ const VolunteerDashboard: React.FC = () => {
     if (!user?.id || !profile) return;
     try {
       const { data: iData } = await (supabase.from('incidents').select('*') as any)
-        .eq('city', profile.city)
+        .ilike('city', `%${profile.city}%`)
         .neq('status', 'resolved');
       
       const allIncidents = (iData || []).filter((i: Incident) => 

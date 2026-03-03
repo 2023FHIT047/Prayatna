@@ -188,10 +188,15 @@ const CoordinatorDashboard: React.FC = () => {
         return;
       }
 
-      const { data: rData } = await (supabase.from('incidents').select('*') as any).eq('city', freshProfile.city);
-      const { data: vData } = await (supabase.from('volunteers') as any).select('*').eq('city', freshProfile.city);
-      const { data: cData } = await (supabase.from('resource_centers').select('*') as any).eq('city', freshProfile.city);
-      const { data: profData } = await (supabase.from('profiles') as any).select('*').eq('city', freshProfile.city).in('role', ['volunteer', 'resource_manager']);
+      const { data: rData, error: rErr } = await (supabase.from('incidents').select('*') as any).ilike('city', `%${freshProfile.city}%`);
+      if (rErr) console.error("Incident Fetch Error:", rErr);
+      console.log(`Fetched ${rData?.length || 0} incidents for city: ${freshProfile.city}`);
+      if (rData && rData.length > 0) {
+        console.log("Sample incident city:", rData[0].city);
+      }
+      const { data: vData } = await (supabase.from('volunteers') as any).select('*').ilike('city', `%${freshProfile.city}%`);
+      const { data: cData } = await (supabase.from('resource_centers').select('*') as any).ilike('city', `%${freshProfile.city}%`);
+      const { data: profData } = await (supabase.from('profiles') as any).select('*').ilike('city', `%${freshProfile.city}%`).in('role', ['volunteer', 'resource_manager']);
       
       // Filter out records with invalid coordinates early
       setReports((rData || []).filter((r: Incident) => !isNaN(r.latitude) && !isNaN(r.longitude)));

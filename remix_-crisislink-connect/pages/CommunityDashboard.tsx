@@ -85,12 +85,17 @@ const CommunityDashboard: React.FC = () => {
   }, []);
 
   const myReports = useMemo(() => reports.filter(r => r.reporter_id === user?.id), [reports, user?.id]);
-  const feedReports = useMemo(() => reports.filter(r => r.reporter_id !== user?.id && (r.city || '').toLowerCase() === (profile?.city || '').toLowerCase()), [reports, user?.id, profile?.city]);
+  const feedReports = useMemo(() => reports.filter(r => 
+    r.reporter_id !== user?.id && 
+    ((r.city || '').toLowerCase() === (profile?.city || '').toLowerCase() || (r.city || '').toLowerCase() === 'unspecified')
+  ), [reports, user?.id, profile?.city]);
   
   const visibleReports = useMemo(() => {
     if (activeTab === 'my-reports') return myReports;
     if (activeTab === 'feed') return feedReports;
-    return reports.filter(r => (r.city || '').toLowerCase() === (profile?.city || '').toLowerCase());
+    return reports.filter(r => 
+      (r.city || '').toLowerCase() === (profile?.city || '').toLowerCase() || (r.city || '').toLowerCase() === 'unspecified'
+    );
   }, [activeTab, myReports, feedReports, reports, profile?.city]);
 
   // Dynamically calculate map center: Prefer latest mission, then user city center, then India center

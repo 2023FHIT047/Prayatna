@@ -118,7 +118,7 @@ const ResourceManagerDashboard: React.FC = () => {
 
       const { data: incData } = await (supabase.from('incidents') as any)
         .select('*')
-        .eq('city', profile.city)
+        .ilike('city', `%${profile.city}%`)
         .neq('status', 'resolved')
         .contains('assigned_centers', [profile.assigned_center_id]);
       
